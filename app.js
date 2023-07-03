@@ -3,10 +3,12 @@ const mongoose = require("mongoose")
 const dotenv = require('dotenv')
 const categorieRouter = require("./routes/categorie.route")
 const scategorieRouter = require("./routes/scategorie.route")
+const articleRouter = require("./routes/article.route")
 dotenv.config()
 const app = express();
 //BodyParser Middleware
 app.use(express.json());
+app.use('/api/articles', articleRouter);
 mongoose.set("strictQuery", false);
 // Connexion à la base données
 mongoose.connect(process.env.DATABASECLOUD, {
