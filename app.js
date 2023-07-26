@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require("mongoose")
+const cors = require('cors')
 const dotenv = require('dotenv')
 const categorieRouter = require("./routes/categorie.route")
 const scategorieRouter = require("./routes/scategorie.route")
@@ -8,6 +9,7 @@ dotenv.config()
 const app = express();
 //BodyParser Middleware
 app.use(express.json());
+app.use(cors());
 app.use('/api/articles', articleRouter);
 mongoose.set("strictQuery", false);
 // Connexion à la base données
