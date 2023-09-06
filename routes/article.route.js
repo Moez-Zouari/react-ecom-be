@@ -1,67 +1,48 @@
-const express = require('express');
-const router = express.Router();
-const Article = require("../models/article")
-// afficher la liste des articles.
-router.get('/', async (req, res,) => {
+var express = require('express');
+var router = express.Router();
+const Article = require('../models/article');
+const Scategorie = require('../models/scategorie');
+
+router.get('/', async (req, res) => {
     try {
-        const articles = await Article.find();
-        res.status(200).json(articles);
-    } catch (error) {
-        res.status(404).json({ message: error.message });
-    }
-});
-
-
-// // afficher la liste des articles.
-// router.get('/', async (req, res,) => {
-//     try {
-//         const articles = await Article.find({}, null, { sort: { '_id': -1 } }).populate("scategorieID").exec();
-
-//         res.status(200).json(articles);
-//     } catch (error) {
-//         res.status(404).json({ message: error.message });
-//     }
-
-// });
-// créer un nouvel article
-router.post('/', async (req, res) => {
-    const nouvarticle = new Article(req.body)
-    try {
-        await nouvarticle.save();
-        res.status(200).json(nouvarticle);
-    } catch (error) {
-        res.status(404).json({ message: error.message });
-    }
-});
-// chercher un article
-router.get('/:articleId', async (req, res) => {
-    try {
-        const art = await Article.findById(req.params.articleId);
+        const art = await Article.find().populate("scategorieID").exec();
         res.status(200).json(art);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
-});
-// modifier un article
+})
 
-router.put('/:articleId', async (req, res) => {
+router.post('/', async (req, res) => {
+    const newArticle = new Article(req.body);
     try {
-        const art = await Article.findByIdAndUpdate(
-            req.params.articleId,
-            { $set: req.body },
-            { new: true }
-        );
-        const articles = await Article.findById(art._id).populate("scategorieID").exec();
-
-        res.status(200).json(articles);
+        await newArticle.save();
+        res.status(200).json(newArticle);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
-});
-// Supprimer un article
-router.delete('/:articleId', async (req, res) => {
-    const id = req.params.articleId;
-    await Article.findByIdAndDelete(id);
-    res.json({ message: "article deleted successfully." });
-});
+})
+
+router.get('/:articleID', async (req, res) => {
+    try {
+        const art = await Article.findById(req.params.articleID).populate("scategorieID").exec();
+        res.status(200).json(art);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+})
+
+router.put('/:articleID', async (req, res) => {
+    try {
+        const art = await Article.findByIdAndUpdate(req.params.articleID, { $set: req.body })
+        res.status(200).json(art);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+})
+
+router.delete('/:articleID', async (req, res) => {
+    await Article.findByIdAndDelete(req.params.articleID);
+    res.json({ message: "article supprimer avec success!" });
+})
+
 module.exports = router;
