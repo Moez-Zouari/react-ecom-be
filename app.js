@@ -5,7 +5,7 @@ const dotenv = require('dotenv')
 const categorieRouter = require("./routes/categorie.route")
 const scategorieRouter = require("./routes/scategorie.route")
 const articleRouter = require("./routes/article.route")
-const paymentRouter = require("./routes/payment.route.js")
+const paymentRouter = require("./routes/payement.route")
 dotenv.config()
 const app = express();
 //BodyParser Middleware
