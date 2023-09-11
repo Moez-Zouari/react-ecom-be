@@ -30,4 +30,20 @@ router.get('/', async (req, res,) => {
         res.status(404).json({ message: error.message });
     }
 });
+
+/**
+* as an admin i can disable or enable an account
+*/
+router.get('/status/edit/', async (req, res) => {
+    try {
+        let email = req.query.email
+        let user = await User.findOne({ email })
+        user.isActive = !user.isActive
+        user.save()
+        res.status(200).send({ success: true, user })
+    } catch (err) {
+        return res.status(404).send({ success: false, message: err })
+    }
+})
+
 module.exports = router;
