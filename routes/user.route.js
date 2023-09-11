@@ -1,6 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const User = require("../models/user")
+// npm install nodemailer
+const nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'moez.zouari.94@gmail.com',
+        pass: 'ozvxbhnocpftomus'
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+})
+
 // créer un nouvel utilisateur
 router.post('/register', async (req, res) => {
     try {
@@ -12,6 +25,25 @@ router.post('/register', async (req, res) => {
         })
         const newUser = new User({ email, password, firstname, lastname })
         const createdUser = await newUser.save()
+        // Envoyer l'e-mail de confirmation de l'inscription
+        var mailOption = {
+            from: '"verify your email " <esps421@gmail.com>',
+            to: newUser.email,
+            subject: 'vérification your email ',
+            html: `<h2>${newUser.firstname}! thank you for registreting on our website</h2>
+    <h4>please verify your email to procced.. </h4>
+    <a
+    href="http://${req.headers.host}/api/users/status/edit?email=${newUser.email}">click
+    here</a>`
+        }
+        transporter.sendMail(mailOption, function (error, info) {
+            if (error) {
+                console.log(error)
+            }
+            else {
+                console.log('verification email sent to your gmail account ')
+            }
+        })
         return res.status(201).send({
             success: true, message: "Account created successfully", user: createdUser
         })
@@ -20,6 +52,8 @@ router.post('/register', async (req, res) => {
         res.status(404).send({ success: false, message: err })
     }
 });
+
+
 
 // afficher la liste des utilisateurs.
 router.get('/', async (req, res,) => {
