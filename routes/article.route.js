@@ -2,8 +2,10 @@ var express = require('express');
 var router = express.Router();
 const Article = require('../models/article');
 const Scategorie = require('../models/scategorie');
+const { verifyToken } = require("../middleware/verifytoken")
 
-router.get('/', async (req, res) => {
+
+router.get('/', verifyToken, async (req, res) => {
     try {
         const art = await Article.find().populate("scategorieID").exec();
         res.status(200).json(art);
