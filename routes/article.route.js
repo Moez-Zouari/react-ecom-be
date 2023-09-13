@@ -2,10 +2,12 @@ var express = require('express');
 var router = express.Router();
 const Article = require('../models/article');
 const Scategorie = require('../models/scategorie');
-const { verifyToken } = require("../middleware/verifytoken")
+const { verifyToken } = require("../middleware/verifytoken");
+const { authorizeRoles } = require("../middleware/authorizeRoles")
 
 
-router.get('/', verifyToken, async (req, res) => {
+// afficher la liste des articles.
+router.get('/', verifyToken, authorizeRoles("user", "admin", "visiteur"), async (req, res) => {
     try {
         const art = await Article.find().populate("scategorieID").exec();
         res.status(200).json(art);
