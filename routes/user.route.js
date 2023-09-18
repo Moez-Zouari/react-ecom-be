@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
         const createdUser = await newUser.save()
         // Envoyer l'e-mail de confirmation de l'inscription
         var mailOption = {
-            from: '"verify your email " <esps421@gmail.com>',
+            from: '"verify your email " <moez.zouari.94@gmail.com>',
             to: newUser.email,
             subject: 'vérification your email ',
             html: `<h2>${newUser.firstname}! thank you for registreting on our website</h2>
@@ -137,7 +137,7 @@ router.post('/login', async (req, res) => {
 //Access Token 
 const generateAccessToken = (user) => {
     return jwt.sign({ iduser: user._id, role: user.role }, process.env.SECRET, {
-        expiresIn: '60s'
+        expiresIn: '400s'
     })
 }
 // Refresh
@@ -171,5 +171,67 @@ router.post('/refreshToken', async (req, res,) => {
         });
     }
 });
+
+/*
+Forgot password
+*/
+router.post('/forgot-password', (req, res) => {
+    const { email } = req.body;
+    User.findOne({ email: email })
+        .then(user => {
+            if (!user) {
+                return res.send({ Status: "User not existed" })
+            }
+            const token = jwt.sign({ id: user._id }, "jwt_secret_key", {
+                expiresIn:
+                    "1d"
+            })
+            var transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'moez.zouari.94@gmail.com',
+                    pass: 'ozvxbhnocpftomus'
+                },
+                tls: {
+                    rejectUnauthorized: false
+                }
+            });
+            var mailOptions = {
+                from: '"verify your email " <moez.zouari.94@gmail.com',
+                to: email,
+                subject: 'Reset Password Link',
+                text: `http://${req.headers.host}/api/users/reset_password/${user._id}/${token}`
+            };
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log(info)
+                    return res.send({ Status: "Success" })
+                }
+            });
+        })
+})
+/*
+Reset Password
+*/
+router.post('/reset_password/:id/:token', async (req, res) => {
+    const { id, token } = req.params
+    const { password } = req.body
+    jwt.verify(token, "jwt_secret_key", async (err, decoded) => {
+        if (err) {
+            return res.json({ Status: "Error with token" })
+        } else {
+            const salt = await bcrypt.genSalt(10);
+            await bcrypt.hash(password, salt)
+                .then(hash => {
+                    User.findByIdAndUpdate({ _id: id }, { password: hash })
+                        .then(u => res.send({ Status: "Success" }))
+                        .catch(err => res.send({ Status: err }))
+                })
+                .catch(err => res.send({ Status: err }))
+        }
+    })
+})
 
 module.exports = router;
